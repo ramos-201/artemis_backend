@@ -3,8 +3,8 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from api.mutations import Mutation
-from api.queries import Query
+from src.api.mutations import Mutation
+from src.api.queries import Query
 
 schema = Schema(query=Query, mutation=Mutation)
 
