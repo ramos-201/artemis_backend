@@ -16,12 +16,11 @@ async def handler_graph(request):
         variables = body.get('variables')
 
         response_query = await schema.execute_async(
-            query, variables_values=variables,
+            query,
+            variables=variables,
         )
 
-        result = {'data': response_query.data}
-
-        return JSONResponse(result)
+        return JSONResponse(response_query.data)
 
 app = Starlette(
     debug=True,
