@@ -13,10 +13,7 @@ class RegisterUser(graphene.Mutation):
     result = graphene.String()
 
     @classmethod
-    async def mutate(
-        cls, root, info, name, last_name, username, email, mobile_phone,
-        password,
-    ):
+    async def mutate(cls, root, info, name, last_name, username, email, mobile_phone, password):
         return RegisterUser(result='User registered successfully.')
 
 

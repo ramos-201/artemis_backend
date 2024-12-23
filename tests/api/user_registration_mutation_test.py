@@ -40,9 +40,8 @@ def test_successful_user_registration_with_valid_data(client_gql):
         'mobilePhone': '3111111111',
         'password': 'password_example',
     }
-    response = client_gql.post(
-        '/graphql', json={'query': mutation, 'variables': variables},
-    )
+
+    response = client_gql.post('/graphql', json={'query': mutation, 'variables': variables})
 
     data = response.json()
     assert data['registerUser']['result'] == 'User registered successfully.'

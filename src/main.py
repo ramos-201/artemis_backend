@@ -15,10 +15,7 @@ async def handler_graph(request):
         query = body.get('query')
         variables = body.get('variables')
 
-        response_query = await schema.execute_async(
-            query,
-            variables=variables,
-        )
+        response_query = await schema.execute_async(query, variables=variables)
 
         return JSONResponse(response_query.data)
 
