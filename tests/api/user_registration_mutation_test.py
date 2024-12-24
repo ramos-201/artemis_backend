@@ -28,6 +28,9 @@ def test_successful_user_registration_with_valid_data(client_gql):
                  password: $password,
             ) {
                 result
+                data {
+                    id
+                }
             }
         }
     '''
@@ -45,3 +48,4 @@ def test_successful_user_registration_with_valid_data(client_gql):
 
     data = response.json()
     assert data['registerUser']['result'] == 'User registered successfully.'
+    assert data['registerUser']['data']['id'] == '1'
