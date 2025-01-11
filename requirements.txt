@@ -1,3 +1,5 @@
+asyncpg==0.30.0
 graphene==3.4.3
 starlette==0.42.0
+tortoise-orm==0.23.0
 uvicorn==0.34.0

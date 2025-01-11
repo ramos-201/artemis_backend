@@ -1,15 +1,4 @@
-import pytest
-from starlette.testclient import TestClient
-
-from src.main import app
-
-
-@pytest.fixture
-def client_gql():
-    return TestClient(app)
-
-
-def test_successful_user_registration_with_valid_data(client_gql):
+def test_successful_user_registration_with_valid_data(mock_prepare_db, client_app):
     mutation = '''
         mutation(
             $name: String!,
@@ -25,7 +14,7 @@ def test_successful_user_registration_with_valid_data(client_gql):
                 username: $username,
                 email: $email,
                 mobilePhone: $mobilePhone,
-                 password: $password,
+                password: $password,
             ) {
                 result
                 data {
@@ -44,7 +33,7 @@ def test_successful_user_registration_with_valid_data(client_gql):
         'password': 'password_example',
     }
 
-    response = client_gql.post('/graphql', json={'query': mutation, 'variables': variables})
+    response = client_app.post('/graphql', json={'query': mutation, 'variables': variables})
 
     data = response.json()
     assert data['registerUser']['result'] == 'User registered successfully.'

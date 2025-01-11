@@ -3,7 +3,7 @@ import graphene
 from src.controllers.user_controller import UserController
 
 
-class UserData(graphene.ObjectType):
+class UserScheme(graphene.ObjectType):
     id = graphene.String()
 
 
@@ -17,17 +17,34 @@ class RegisterUser(graphene.Mutation):
         password = graphene.String(required=True)
 
     result = graphene.String()
-    data = graphene.Field(UserData)
+    data = graphene.Field(UserScheme)
 
     @classmethod
-    async def mutate(cls, root, info, name, last_name, username, email, mobile_phone, password):
-
-        user_created = UserController().create_user(
-            name=name, last_name=last_name, username=username, email=email,
-            mobile_phone=mobile_phone, password=password,
+    async def mutate(
+            cls,
+            root,
+            info,
+            name,
+            last_name,
+            username,
+            email,
+            mobile_phone,
+            password,
+    ):
+        user_controller = UserController()
+        user_created = await user_controller.create_user(
+            name=name,
+            last_name=last_name,
+            username=username,
+            email=email,
+            mobile_phone=mobile_phone,
+            password=password,
         )
 
-        return RegisterUser(result='User registered successfully.', data=UserData(id=user_created))
+        return RegisterUser(
+            result='User registered successfully.',
+            data=UserScheme(id=user_created.id),
+        )
 
 
 class Mutation(graphene.ObjectType):
