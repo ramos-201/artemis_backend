@@ -41,6 +41,16 @@ repos:
     additional_dependencies: [types-pyyaml]
   - repo: local
     hooks:
+        - id: pytest-check
+          name: pytest-check
+          entry: pytest
+          language: system
+          pass_filenames: false
+          always_run: true
+          stages: [ commit ]
+          files: '\.py$'
+  - repo: local
+    hooks:
       - id: xenon
         name: xenon
         entry: ./run_xenon.sh
