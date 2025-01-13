@@ -17,7 +17,7 @@ class RegisterUser(graphene.Mutation):
         password = graphene.String(required=True)
 
     result = graphene.String()
-    data = graphene.Field(UserScheme)
+    user = graphene.Field(UserScheme)
 
     @classmethod
     async def mutate(
@@ -43,7 +43,7 @@ class RegisterUser(graphene.Mutation):
 
         return RegisterUser(
             result='User registered successfully.',
-            data=UserScheme(id=user_created.id),
+            user=UserScheme(id=user_created.id),
         )
 
 
