@@ -7,7 +7,7 @@ from src.run import app
 
 
 @pytest.fixture
-def client_app():
+def client_api():
     return TestClient(app)
 
 

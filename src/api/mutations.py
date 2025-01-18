@@ -16,7 +16,8 @@ class RegisterUser(graphene.Mutation):
         mobile_phone = graphene.String(required=True)
         password = graphene.String(required=True)
 
-    result = graphene.String()
+    ok = graphene.Boolean()
+    message = graphene.String()
     user = graphene.Field(UserScheme)
 
     @classmethod
@@ -32,7 +33,7 @@ class RegisterUser(graphene.Mutation):
             password,
     ):
         user_controller = UserController()
-        user_created = await user_controller.create_user(
+        user_created, message = await user_controller.create_user(
             name=name,
             last_name=last_name,
             username=username,
@@ -41,9 +42,16 @@ class RegisterUser(graphene.Mutation):
             password=password,
         )
 
+        user = None
+        ok = False
+        if user_created:
+            ok = True
+            user = UserScheme(id=user_created.id)
+
         return RegisterUser(
-            result='User registered successfully.',
-            user=UserScheme(id=user_created.id),
+            ok=ok,
+            message=message,
+            user=user,
         )
 
 

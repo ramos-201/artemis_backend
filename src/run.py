@@ -43,8 +43,6 @@ async def close_db():
 app = Starlette(
     debug=True,
     on_startup=[initialize_db],
-    routes=[
-        Route('/graphql', handler_graphql_request, methods=['POST']),
-    ],
+    routes=[Route('/graphql', handler_graphql_request, methods=['POST'])],
     on_shutdown=[close_db],
 )

@@ -1,3 +1,7 @@
+from typing import Optional
+
+from tortoise.exceptions import IntegrityError
+
 from src.models import User
 
 
@@ -14,14 +18,18 @@ class UserController:
             email: str,
             mobile_phone: str,
             password: str,
-    ) -> 'User':
-        user_created = await self.__model.create(
-            name=name,
-            last_name=last_name,
-            username=username,
-            email=email,
-            mobile_phone=mobile_phone,
-            password=password,
-        )
+    ) -> tuple[Optional['User'], str]:
+        try:
+            user_created = await self.__model.create(
+                name=name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                mobile_phone=mobile_phone,
+                password=password,
+            )
 
-        return user_created
+            return user_created, 'User registered successfully.'
+        except IntegrityError as e:
+            field_name = str(e).split()[-1].split('.')[-1]
+            return None, f'Error: {field_name} data already exists'
