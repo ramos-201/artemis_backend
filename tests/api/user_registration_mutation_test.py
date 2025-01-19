@@ -41,7 +41,6 @@ async def test_successful_user_registration_with_valid_data(mock_prepare_db, cli
         'mobilePhone': '3111111111',
         'password': 'password_example',
     }
-
     response = client_api.post('/graphql', json={'query': mutation_register_user, 'variables': mutation_variables})
     response_data = response.json()
 
@@ -74,7 +73,6 @@ async def test_error_when_user_already_exists_in_user_registration(mock_prepare_
         'mobilePhone': existing_user.mobile_phone,
         'password': existing_user. password,
     }
-
     response = client_api.post('/graphql', json={'query': mutation_register_user, 'variables': mutation_variables})
     response_data = response.json()
 
@@ -84,8 +82,44 @@ async def test_error_when_user_already_exists_in_user_registration(mock_prepare_
     assert result_register_user['user'] is None
 
 
-# TODO: integrate these tests
-"""
-- Cuando los campos se envian vacios o no se envian campos requeridos a nivel BD???
-- cuando no se envian los campos requeridos a nivel GPQL o no se envian las variables???
-"""
+@mark.asyncio
+async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
+    mutation_variables = {
+        'name': '',
+        'lastName': '',
+        'username': '',
+        'email': '',
+        'mobilePhone': '',
+        'password': '',
+    }
+    response = client_api.post('/graphql', json={'query': mutation_register_user, 'variables': mutation_variables})
+    response_data = response.json()
+
+    result_register_user = response_data['registerUser']
+    assert result_register_user['ok'] is False
+    assert result_register_user['message'] == 'The field "name" cannot be empty or contain only spaces.'
+    assert result_register_user['user'] is None
+
+
+@mark.asyncio
+async def test_error_when_required_fields_are_none(client_api):
+    mutation_variables = {
+        'name': None,
+        'lastName': None,
+        'username': None,
+        'email': None,
+        'mobilePhone': None,
+        'password': None,
+    }
+    response = client_api.post('/graphql', json={'query': mutation_register_user, 'variables': mutation_variables})
+    response_data = response.json()
+
+    assert response_data == {'error': 'There was a problem with the fields provided. Please check the inputs.'}
+
+
+@mark.asyncio
+async def test_error_when_variables_are_none(client_api):
+    response = client_api.post('/graphql', json={'query': mutation_register_user, 'variables': None})
+    response_data = response.json()
+
+    assert response_data == {'error': 'There was a problem with the fields provided. Please check the inputs.'}

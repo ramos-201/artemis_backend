@@ -33,22 +33,28 @@ class RegisterUser(graphene.Mutation):
             password,
     ):
         user_controller = UserController()
-        user_created, message = await user_controller.create_user(
-            name=name,
-            last_name=last_name,
-            username=username,
-            email=email,
-            mobile_phone=mobile_phone,
-            password=password,
-        )
 
-        user = None
+        try:
+            user_created, message = await user_controller.create_user(
+                name=name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                mobile_phone=mobile_phone,
+                password=password,
+            )
+        except ValueError as e:
+            user_created = None
+            message = str(e)
+
         ok = False
+        user = None
+
         if user_created:
             ok = True
             user = UserScheme(id=user_created.id)
 
-        return RegisterUser(
+        return cls(
             ok=ok,
             message=message,
             user=user,

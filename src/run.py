@@ -21,8 +21,10 @@ async def handler_graphql_request(request):
         body = await request.json()
         query = body.get('query')
         variables = body.get('variables')
-
         response_query = await schema.execute_async(query, variables=variables)
+
+        if response_query.errors:
+            return JSONResponse({'error': 'There was a problem with the fields provided. Please check the inputs.'})
 
         return JSONResponse(response_query.data)
 
