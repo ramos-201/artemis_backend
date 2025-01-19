@@ -1,6 +1,7 @@
 import graphene
 
 from src.controllers.user_controller import UserController
+from src.exceptions.exceptions import EmptyFieldError
 
 
 class UserScheme(graphene.ObjectType):
@@ -43,7 +44,7 @@ class RegisterUser(graphene.Mutation):
                 mobile_phone=mobile_phone,
                 password=password,
             )
-        except ValueError as e:
+        except EmptyFieldError as e:
             user_created = None
             message = str(e)
 

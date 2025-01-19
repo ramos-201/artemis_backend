@@ -2,12 +2,13 @@ from typing import Optional
 
 from tortoise.exceptions import IntegrityError
 
+from src.exceptions.exceptions import EmptyFieldError
 from src.models import User
 
 
 def validate_string_is_not_empty(value: str, field_description: str):
     if not value or not value.strip():
-        raise ValueError(f'The field "{field_description}" cannot be empty or contain only spaces.')
+        raise EmptyFieldError(f'The field "{field_description}" cannot be empty or contain only spaces.')
     return value
 
 
