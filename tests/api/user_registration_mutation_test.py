@@ -94,7 +94,6 @@ async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
     }
     response = client_api.post('/graphql', json={'query': mutation_register_user, 'variables': mutation_variables})
     response_data = response.json()
-
     result_register_user = response_data['registerUser']
     assert result_register_user['ok'] is False
     assert result_register_user['message'] == 'The field "name" cannot be empty or contain only spaces.'

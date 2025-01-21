@@ -6,9 +6,9 @@ from src.exceptions.exceptions import EmptyFieldError
 from src.models import User
 
 
-def validate_string_is_not_empty(value: str, field_description: str):
+def validate_string_is_not_empty(value: str, description: str):
     if not value or not value.strip():
-        raise EmptyFieldError(f'The field "{field_description}" cannot be empty or contain only spaces.')
+        raise EmptyFieldError(f'The field "{description}" cannot be empty or contain only spaces.')
     return value
 
 
@@ -28,12 +28,12 @@ class UserController:
     ) -> tuple[Optional['User'], str]:
         try:
             user_created = await self.__model.create(
-                name=validate_string_is_not_empty(name, 'name'),
-                last_name=validate_string_is_not_empty(last_name, 'last_name'),
-                username=validate_string_is_not_empty(username, 'username'),
-                email=validate_string_is_not_empty(email, 'email'),
-                mobile_phone=validate_string_is_not_empty(mobile_phone, 'mobile_phone'),
-                password=validate_string_is_not_empty(password, 'password'),
+                name=validate_string_is_not_empty(name, description='name'),
+                last_name=validate_string_is_not_empty(last_name, description='last_name'),
+                username=validate_string_is_not_empty(username, description='username'),
+                email=validate_string_is_not_empty(email, description='email'),
+                mobile_phone=validate_string_is_not_empty(mobile_phone, description='mobile_phone'),
+                password=validate_string_is_not_empty(password, description='password'),
             )
         except IntegrityError as e:
             field_name = str(e).split()[-1].split('.')[-1]
