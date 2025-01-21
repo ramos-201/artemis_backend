@@ -4,8 +4,8 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from tortoise import Tortoise
 
-from src.api.mutations import Mutation
-from src.api.queries import Query
+from src.api.mutation_base import Mutation
+from src.api.queries_base import Query
 from src.setting.env.base import HOST_DATABASE_ARTEMIS
 from src.setting.env.base import NAME_DATABASE_ARTEMIS
 from src.setting.env.base import PASSWORD_DATABASE_ARTEMIS

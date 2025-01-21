@@ -1,11 +1,8 @@
 import graphene
 
+from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
 from src.exceptions.exceptions import EmptyFieldError
-
-
-class UserScheme(graphene.ObjectType):
-    id = graphene.String()
 
 
 class RegisterUser(graphene.Mutation):
@@ -50,7 +47,6 @@ class RegisterUser(graphene.Mutation):
 
         ok = False
         user = None
-
         if user_created:
             ok = True
             user = UserScheme(id=user_created.id)
@@ -60,7 +56,3 @@ class RegisterUser(graphene.Mutation):
             message=message,
             user=user,
         )
-
-
-class Mutation(graphene.ObjectType):
-    register_user = RegisterUser.Field()
