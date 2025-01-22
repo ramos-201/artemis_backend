@@ -6,9 +6,9 @@ from src.api.schemas.user_scheme import UserScheme
 
 class Login(graphene.Mutation):
     class Arguments:
+        password = graphene.String(required=True)
         username = graphene.String(required=False)
         email = graphene.String(required=False)
-        password = graphene.String(required=True)
 
     ok = graphene.Boolean()
     message = graphene.String()

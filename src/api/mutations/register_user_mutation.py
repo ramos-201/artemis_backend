@@ -2,7 +2,6 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
-from src.exceptions.exceptions import EmptyFieldError
 
 
 class RegisterUser(graphene.Mutation):
@@ -32,24 +31,17 @@ class RegisterUser(graphene.Mutation):
     ):
         user_controller = UserController()
 
-        try:
-            user_created, message = await user_controller.create_user(
-                name=name,
-                last_name=last_name,
-                username=username,
-                email=email,
-                mobile_phone=mobile_phone,
-                password=password,
-            )
-        except EmptyFieldError as e:
-            user_created = None
-            message = str(e)
+        user_created, message = await user_controller.create_user(
+            name=name,
+            last_name=last_name,
+            username=username,
+            email=email,
+            mobile_phone=mobile_phone,
+            password=password,
+        )
 
-        ok = False
-        user = None
-        if user_created:
-            ok = True
-            user = UserScheme(id=user_created.id)
+        ok = bool(user_created)
+        user = UserScheme(id=user_created.id) if ok else None
 
         return cls(
             ok=ok,
