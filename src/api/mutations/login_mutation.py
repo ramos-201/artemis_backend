@@ -1,7 +1,6 @@
 import graphene
 
 from src.api.schemas.user_scheme import UserScheme
-# from src.controllers.user_controller import UserController
 
 
 class Login(graphene.Mutation):

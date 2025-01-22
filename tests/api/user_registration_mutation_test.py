@@ -1,7 +1,6 @@
 from pytest import mark
 
 from src.models import User
-from tests.factory_test import UserFactory
 
 
 mutation_register_user = '''
@@ -61,9 +60,10 @@ async def test_successful_user_registration_with_valid_data(mock_prepare_db, cli
 
 
 @mark.asyncio
-async def test_error_when_user_already_exists_in_user_registration(mock_prepare_db, client_api):
-    existing_user = await UserFactory.build()
-    await existing_user.save()
+async def test_error_when_user_already_exists_in_user_registration(
+        mock_prepare_db, client_api, default_user_record_constructor,
+):
+    existing_user = await default_user_record_constructor
 
     mutation_variables = {
         'name': existing_user.name,
