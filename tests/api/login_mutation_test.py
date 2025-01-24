@@ -3,6 +3,27 @@ from pytest import mark
 from src.models import User
 
 
+mutation_login = '''
+       mutation(
+           $username: String,
+           $email: String,
+           $password: String!,
+       ) {
+           login(
+               username: $username,
+               email: $email,
+               password: $password,
+           ) {
+               ok
+               message
+               user {
+                   id
+               }
+           }
+       }
+   '''
+
+
 @mark.asyncio
 @mark.parametrize(
     'identifier_field, identifier_value', [
@@ -14,26 +35,6 @@ async def test_successful_login_with_valid_data(
         mock_prepare_db, client_api, default_user_record_constructor,
         identifier_field, identifier_value,
 ):
-    mutation_login = '''
-        mutation(
-            $username: String,
-            $email: String,
-            $password: String!,
-        ) {
-            login(
-                username: $username,
-                email: $email,
-                password: $password,
-            ) {
-                ok
-                message
-                user {
-                    id
-                }
-            }
-        }
-    '''
-
     existing_user = await default_user_record_constructor
 
     mutation_variables = {
@@ -52,9 +53,25 @@ async def test_successful_login_with_valid_data(
     assert getattr(user_data, identifier_value) == mutation_variables[identifier_field]
 
 
+@mark.asyncio
+async def test_error_when_credentials_do_not_exist(mock_prepare_db, client_api):
+
+    mutation_variables = {
+        'username': 'username_not_exists',
+        'password': 'password_not_exists',
+    }
+    response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
+    response_data = response.json()
+
+    result_login = response_data['login']
+    assert result_login['ok'] is False
+    assert result_login['message'] == 'User not found.'
+    assert result_login['user'] is None
+
+
 # TODO: tests,
 """
-- Datos incorrectos.
+- Credenciales no validas.
 - Password incorrecta con username correcto.
 - Password incorrecta con email correcto.
 - Password correcta con username incorrecto.

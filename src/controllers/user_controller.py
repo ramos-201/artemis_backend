@@ -1,6 +1,7 @@
 from typing import Optional
 
 from tortoise.exceptions import IntegrityError
+from tortoise.expressions import Q
 
 from src.exceptions.exceptions import EmptyFieldError
 from src.models import User
@@ -52,3 +53,11 @@ class UserController:
             return None, f'Error: {field_name} data already exists'
 
         return user_created, 'User registered successfully.'
+
+    async def get_user_with_credentials(self, password, username=None, email=None):
+        user = await self.__model.get_or_none(
+            Q(username=username) | Q(email=email),
+            password=password,
+        )
+
+        return user
