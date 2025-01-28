@@ -34,12 +34,12 @@ class Login(graphene.Mutation):
         if existing_user:
             return cls(
                 ok=True,
-                message='Login successful.',
+                message='User login was successful.',
                 user=UserScheme(id=existing_user.id),
             )
 
         return cls(
             ok=False,
-            message='User not found.',
+            message='The credentials entered are invalid.',
             user=None,
         )

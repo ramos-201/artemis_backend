@@ -1,7 +1,7 @@
 from pytest import mark
 
 from src.models import User
-
+from tests.factory_test import UserFactory
 
 mutation_login = '''
        mutation(
@@ -46,36 +46,54 @@ async def test_successful_login_with_valid_data(
 
     result_login = response_data['login']
     assert result_login['ok'] is True
-    assert result_login['message'] == 'Login successful.'
+    assert result_login['message'] == 'User login was successful.'
     assert result_login['user']['id'] is not None
 
     user_data = await User.get(id=result_login['user']['id'])
     assert getattr(user_data, identifier_value) == mutation_variables[identifier_field]
 
 
+valid_password = 'password_valid'
+credentials_valid = 'credentials_valid@example.com'
+
+
 @mark.asyncio
-async def test_error_when_credentials_do_not_exist(mock_prepare_db, client_api):
+@mark.parametrize(
+    'credentials_field_identifier, credentials_value, password_value', [
+        ['username', 'username_invalid', valid_password],
+        ['email', 'email_invalid', valid_password],
+        ['username', credentials_valid, 'password_invalid'],
+        ['email', credentials_valid, 'password_invalid'],
+        ['username', 'credential_invalid', 'password_invalid'],
+        ['email', 'credential_invalid', 'password_invalid'],
+    ],
+)
+async def test_error_when_credentials_are_invalid(
+        mock_prepare_db, client_api,
+        credentials_field_identifier, credentials_value, password_value,
+):
+    existing_user = await UserFactory.build(
+        password=valid_password,
+        username=credentials_valid,
+        email=credentials_valid,
+    )
+    await existing_user.save()
 
     mutation_variables = {
-        'username': 'username_not_exists',
-        'password': 'password_not_exists',
+        credentials_field_identifier: credentials_value,
+        'password': password_value,
     }
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
     response_data = response.json()
 
     result_login = response_data['login']
     assert result_login['ok'] is False
-    assert result_login['message'] == 'User not found.'
+    assert result_login['message'] == 'The credentials entered are invalid.'
     assert result_login['user'] is None
-
 
 # TODO: tests,
 """
-- Credenciales no validas.
-- Password incorrecta con username correcto.
-- Password incorrecta con email correcto.
-- Password correcta con username incorrecto.
-- Password correcta con email incorrecto.
 - datos vacios.
 - Datos nulos.
+- No mutation_variables.
 """

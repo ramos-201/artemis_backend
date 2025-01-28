@@ -54,9 +54,14 @@ class UserController:
 
         return user_created, 'User registered successfully.'
 
-    async def get_user_with_credentials(self, password, username=None, email=None):
+    async def get_user_with_credentials(
+            self,
+            password,
+            username=None,
+            email=None,
+    ) -> Optional['User']:
         user = await self.__model.get_or_none(
-            Q(username=username) | Q(email=email),
+            (Q(username=username) | Q(email=email)),
             password=password,
         )
 
