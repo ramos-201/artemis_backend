@@ -3,6 +3,7 @@ from pytest import mark
 from src.models import User
 from tests.factory_test import UserFactory
 
+
 mutation_login = '''
        mutation(
            $username: String,
@@ -91,9 +92,55 @@ async def test_error_when_credentials_are_invalid(
     assert result_login['message'] == 'The credentials entered are invalid.'
     assert result_login['user'] is None
 
-# TODO: tests,
-"""
-- datos vacios.
-- Datos nulos.
-- No mutation_variables.
-"""
+
+@mark.asyncio
+@mark.parametrize(
+    'identifier_field', [
+        'username',
+        'email',
+    ],
+)
+async def test_error_when_credentials_are_sent_empty(
+        mock_prepare_db, client_api,
+        identifier_field,
+):
+    mutation_variables = {
+        identifier_field: '',
+        'password': '',
+    }
+    response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
+    response_data = response.json()
+
+    result_login = response_data['login']
+    assert result_login['ok'] is False
+    assert result_login['message'] == 'The fields cannot be empty or contain only spaces.'
+    assert result_login['user'] is None
+
+
+@mark.asyncio
+@mark.parametrize(
+    'identifier_field', [
+        'username',
+        'email',
+    ],
+)
+async def test_error_when_credentials_are_sent_null(
+        mock_prepare_db, client_api,
+        identifier_field,
+):
+    mutation_variables = {
+        identifier_field: None,
+        'password': None,
+    }
+    response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
+    response_data = response.json()
+
+    assert response_data == {'error': 'There was a problem with the fields provided. Please check the inputs.'}
+
+
+@mark.asyncio
+async def test_error_when_variables_are_none(mock_prepare_db, client_api):
+    response = client_api.post('/graphql', json={'query': mutation_login, 'variables': None})
+    response_data = response.json()
+
+    assert response_data == {'error': 'There was a problem with the fields provided. Please check the inputs.'}
