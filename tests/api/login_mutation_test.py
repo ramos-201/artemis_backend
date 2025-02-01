@@ -104,7 +104,7 @@ async def test_error_when_credentials_are_invalid(
         {'email': None, 'password': 'pass_example'},
     ],
 )
-async def test_error_when_credentials_are_sent_empty(mock_prepare_db, client_api, mutation_variables):
+async def test_error_when_credentials_are_sent_empty_or_null(mock_prepare_db, client_api, mutation_variables):
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
     response_data = response.json()
     assert response_data == {
