@@ -99,6 +99,9 @@ async def test_error_when_credentials_are_invalid(
         {'username': '', 'password': 'pass_example'},
         {'email': '', 'password': 'pass_example'},
         {'username': 'john.smit', 'password': ''},
+        {'email': 'john.smit@example.com', 'password': ''},
+        {'username': None, 'password': 'pass_example'},
+        {'email': None, 'password': 'pass_example'},
     ],
 )
 async def test_error_when_credentials_are_sent_empty(mock_prepare_db, client_api, mutation_variables):
@@ -124,10 +127,7 @@ async def test_error_when_credentials_are_sent_null(
         mock_prepare_db, client_api,
         identifier_field,
 ):
-    mutation_variables = {
-        identifier_field: None,
-        'password': None,
-    }
+    mutation_variables = {'password': None}
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
     response_data = response.json()
 
