@@ -42,15 +42,21 @@ async def test_successful_login_with_valid_data(
         identifier_field: getattr(existing_user, identifier_value),
         'password': existing_user.password,
     }
+    # TODO: check, rute '/graph' > Constant
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
-    response_data = response.json()
+    response_json = response.json()
 
-    result_login = response_data['login']
-    assert result_login['ok'] is True
-    assert result_login['message'] == 'User login was successful.'
-    assert result_login['user']['id'] is not None
+    assert response_json == {
+        'login': {
+            'ok': True,
+            'message': 'User login was successful.',
+            'user': {
+                'id': str(existing_user.id),
+            },
+        },
+    }
 
-    user_data = await User.get(id=result_login['user']['id'])
+    user_data = await User.get(id=response_json['login']['user']['id'])
     assert getattr(user_data, identifier_value) == mutation_variables[identifier_field]
 
 
@@ -85,12 +91,14 @@ async def test_error_when_credentials_are_invalid(
         'password': password_value,
     }
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
-    response_data = response.json()
 
-    result_login = response_data['login']
-    assert result_login['ok'] is False
-    assert result_login['message'] == 'The credentials entered are invalid.'
-    assert result_login['user'] is None
+    assert response.json() == {
+        'login': {
+            'ok': False,
+            'message': 'The credentials entered are invalid.',
+            'user': None,
+        },
+    }
 
 
 @mark.asyncio
@@ -106,11 +114,10 @@ async def test_error_when_credentials_are_invalid(
 )
 async def test_error_when_credentials_are_sent_empty_or_null(mock_prepare_db, client_api, mutation_variables):
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
-    response_data = response.json()
-    assert response_data == {
+    assert response.json() == {
         'login': {
-            'message': 'Required fields cannot be null or empty.',
             'ok': False,
+            'message': 'Required fields cannot be null or empty.',
             'user': None,
         },
     }
@@ -118,25 +125,11 @@ async def test_error_when_credentials_are_sent_empty_or_null(mock_prepare_db, cl
 
 @mark.asyncio
 @mark.parametrize(
-    'identifier_field', [
-        'username',
-        'email',
+    'mutation_variables', [
+        {'password': None},
+        None,
     ],
 )
-async def test_error_when_credentials_are_sent_null(
-        mock_prepare_db, client_api,
-        identifier_field,
-):
-    mutation_variables = {'password': None}
+async def test_error_when_required_variables_are_sent_null(mock_prepare_db, client_api, mutation_variables):
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
-    response_data = response.json()
-
-    assert response_data == {'error': 'There was a problem with the fields provided. Please check the inputs.'}
-
-
-@mark.asyncio
-async def test_error_when_variables_are_none(mock_prepare_db, client_api):
-    response = client_api.post('/graphql', json={'query': mutation_login, 'variables': None})
-    response_data = response.json()
-
-    assert response_data == {'error': 'There was a problem with the fields provided. Please check the inputs.'}
+    assert response.json() == {'error': 'There was a problem with the fields provided. Please check the inputs.'}
