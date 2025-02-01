@@ -95,26 +95,22 @@ async def test_error_when_credentials_are_invalid(
 
 @mark.asyncio
 @mark.parametrize(
-    'identifier_field', [
-        'username',
-        'email',
+    'mutation_variables', [
+        {'username': '', 'password': 'pass_example'},
+        {'email': '', 'password': 'pass_example'},
+        {'username': 'john.smit', 'password': ''},
     ],
 )
-async def test_error_when_credentials_are_sent_empty(
-        mock_prepare_db, client_api,
-        identifier_field,
-):
-    mutation_variables = {
-        identifier_field: '',
-        'password': '',
-    }
+async def test_error_when_credentials_are_sent_empty(mock_prepare_db, client_api, mutation_variables):
     response = client_api.post('/graphql', json={'query': mutation_login, 'variables': mutation_variables})
     response_data = response.json()
-
-    result_login = response_data['login']
-    assert result_login['ok'] is False
-    assert result_login['message'] == 'The fields cannot be empty or contain only spaces.'
-    assert result_login['user'] is None
+    assert response_data == {
+        'login': {
+            'message': 'Required fields cannot be null or empty.',
+            'ok': False,
+            'user': None,
+        },
+    }
 
 
 @mark.asyncio

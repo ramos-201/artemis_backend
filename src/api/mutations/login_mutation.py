@@ -4,6 +4,10 @@ from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
 
 
+def is_field_null_or_empty(field) -> bool:
+    return not (str(field or '').strip())
+
+
 class Login(graphene.Mutation):
     class Arguments:
         password = graphene.String(required=True)
@@ -23,6 +27,13 @@ class Login(graphene.Mutation):
             username=None,
             email=None,
     ):
+        if (is_field_null_or_empty(username) and is_field_null_or_empty(email)) or is_field_null_or_empty(password):
+            return cls(
+                ok=False,
+                message='Required fields cannot be null or empty.',
+                user=None,
+            )
+
         ok = False
         message = 'The fields cannot be empty or contain only spaces.'
         user = None
