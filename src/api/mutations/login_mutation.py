@@ -34,25 +34,22 @@ class Login(graphene.Mutation):
                 user=None,
             )
 
-        ok = False
-        message = 'The fields cannot be empty or contain only spaces.'
-        user = None
-        if email or username:
-            user_controller = UserController()
-            existing_user = await user_controller.get_user_with_credentials(
-                password=password,
-                username=username,
-                email=email,
+        user_controller = UserController()
+        existing_user = await user_controller.get_user_with_credentials(
+            password=password,
+            username=username,
+            email=email,
+        )
+
+        if not existing_user:
+            return cls(
+                ok=False,
+                message='The credentials entered are invalid.',
+                user=None,
             )
 
-            message = 'The credentials entered are invalid.'
-            if existing_user:
-                ok = True
-                message = 'User login was successful.'
-                user = UserScheme(id=existing_user.id)
-
         return cls(
-            ok=ok,
-            message=message,
-            user=user,
+            ok=True,
+            message='User login was successful.',
+            user=UserScheme(id=existing_user.id),
         )
