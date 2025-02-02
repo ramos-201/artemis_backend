@@ -11,6 +11,7 @@ from src.setting.env.base import NAME_DATABASE_ARTEMIS
 from src.setting.env.base import PASSWORD_DATABASE_ARTEMIS
 from src.setting.env.base import PORT_DATABASE_ARTEMIS
 from src.setting.env.base import USER_DATABASE_ARTEMIS
+from src.utils import PATH_API
 
 
 schema = Schema(query=Query, mutation=Mutation)
@@ -45,6 +46,6 @@ async def close_db():
 app = Starlette(
     debug=True,
     on_startup=[initialize_db],
-    routes=[Route('/graphql', handler_graphql_request, methods=['POST'])],
+    routes=[Route(PATH_API, handler_graphql_request, methods=['POST'])],
     on_shutdown=[close_db],
 )

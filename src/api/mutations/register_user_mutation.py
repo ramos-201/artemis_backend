@@ -22,15 +22,14 @@ class RegisterUser(graphene.Mutation):
             cls,
             root,
             info,
-            name,
-            last_name,
-            username,
-            email,
-            mobile_phone,
-            password,
+            name: str,
+            last_name: str,
+            username: str,
+            email: str,
+            mobile_phone: str,
+            password: str,
     ):
         user_controller = UserController()
-
         user_created, message = await user_controller.create_user(
             name=name,
             last_name=last_name,
@@ -41,7 +40,10 @@ class RegisterUser(graphene.Mutation):
         )
 
         ok = bool(user_created)
-        user = UserScheme(id=user_created.id) if ok else None
+        if ok and user_created:
+            user = UserScheme(id=user_created.id)
+        else:
+            user = None
 
         return cls(
             ok=ok,

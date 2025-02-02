@@ -1,3 +1,5 @@
+from typing import Optional
+
 import graphene
 
 from src.api.schemas.user_scheme import UserScheme
@@ -23,9 +25,9 @@ class Login(graphene.Mutation):
             cls,
             root,
             info,
-            password,
-            username=None,
-            email=None,
+            password: str,
+            username: Optional[str] = None,
+            email: Optional[str] = None,
     ):
         if (is_field_null_or_empty(username) and is_field_null_or_empty(email)) or is_field_null_or_empty(password):
             return cls(
