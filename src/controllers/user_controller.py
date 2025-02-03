@@ -3,14 +3,8 @@ from typing import Optional
 from tortoise.exceptions import IntegrityError
 from tortoise.expressions import Q
 
-from src.exceptions.exceptions import EmptyFieldError
+from src.exceptions.exceptions import DuplicateFieldError
 from src.models import User
-
-
-def validate_non_empty_fields(**value):
-    for key, value in value.items():
-        if not value or not value.strip():
-            raise EmptyFieldError(f'The field "{key}" cannot be empty or contain only spaces.')
 
 
 class UserController:
@@ -26,21 +20,9 @@ class UserController:
             email: str,
             mobile_phone: str,
             password: str,
-    ) -> tuple[Optional['User'], str]:
+    ) -> 'User':
         try:
-            validate_non_empty_fields(
-                name=name,
-                last_name=last_name,
-                username=username,
-                email=email,
-                mobile_phone=mobile_phone,
-                password=password,
-            )
-        except EmptyFieldError as e:
-            return None, str(e)
-
-        try:
-            user_created = await self.__model.create(
+            return await self.__model.create(
                 name=name,
                 last_name=last_name,
                 username=username,
@@ -50,9 +32,7 @@ class UserController:
             )
         except IntegrityError as e:
             field_name = str(e).split()[-1].split('.')[-1]
-            return None, f'Error: {field_name} data already exists'
-
-        return user_created, 'User registered successfully.'
+            raise DuplicateFieldError(f'The data for the field "{field_name}" already exists.')
 
     async def get_user_with_credentials(
             self,
@@ -60,9 +40,7 @@ class UserController:
             username=None,
             email=None,
     ) -> Optional['User']:
-        user = await self.__model.get_or_none(
+        return await self.__model.get_or_none(
             (Q(username=username) | Q(email=email)),
             password=password,
         )
-
-        return user

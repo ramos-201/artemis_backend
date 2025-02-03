@@ -26,7 +26,6 @@ async def handler_graphql_request(request):
 
         if response_query.errors:
             return JSONResponse({'error': 'There was a problem with the fields provided. Please check the inputs.'})
-
         return JSONResponse(response_query.data)
 
 

@@ -2,6 +2,9 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
+from src.exceptions.exceptions import DuplicateFieldError
+from src.exceptions.exceptions import EmptyFieldError
+from src.utils import validate_if_fields_are_not_empty_or_null
 
 
 class RegisterUser(graphene.Mutation):
@@ -29,24 +32,41 @@ class RegisterUser(graphene.Mutation):
             mobile_phone: str,
             password: str,
     ):
-        user_controller = UserController()
-        user_created, message = await user_controller.create_user(
-            name=name,
-            last_name=last_name,
-            username=username,
-            email=email,
-            mobile_phone=mobile_phone,
-            password=password,
-        )
+        try:
+            validate_if_fields_are_not_empty_or_null(
+                name=name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                mobile_phone=mobile_phone,
+                password=password,
+            )
+        except EmptyFieldError as e:
+            return cls(
+                ok=False,
+                message=str(e),
+                user=None,
+            )
 
-        ok = bool(user_created)
-        if ok and user_created:
-            user = UserScheme(id=user_created.id)
-        else:
-            user = None
+        user_controller = UserController()
+        try:
+            user_created = await user_controller.create_user(
+                name=name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                mobile_phone=mobile_phone,
+                password=password,
+            )
+        except DuplicateFieldError as e:
+            return cls(
+                ok=False,
+                message=str(e),
+                user=None,
+            )
 
         return cls(
-            ok=ok,
-            message=message,
-            user=user,
+            ok=True,
+            message='User registered successfully.',
+            user=UserScheme(id=user_created.id),
         )

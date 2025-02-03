@@ -3,6 +3,7 @@ from pytest import mark
 from src.models import User
 from src.utils import PATH_API
 
+
 mutation_register_user = '''
     mutation(
         $name: String!,
@@ -82,7 +83,7 @@ async def test_error_when_user_already_exists_in_user_registration(
     assert response.json() == {
         'registerUser': {
             'ok': False,
-            'message': 'Error: mobile_phone data already exists',
+            'message': 'The data for the field "mobile_phone" already exists.',
             'user': None,
         },
     }
