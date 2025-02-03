@@ -22,6 +22,7 @@ mutation_register_user = '''
         ) {
             ok
             message
+            codeError
             user {
                 id
             }
@@ -46,6 +47,7 @@ async def test_successful_user_registration_with_valid_data(mock_prepare_db, cli
     assert response_json == {
         'registerUser': {
             'ok': True,
+            'codeError': None,
             'message': 'User registered successfully.',
             'user': {
                 'id': '1',
@@ -83,6 +85,7 @@ async def test_error_when_user_already_exists_in_user_registration(
     assert response.json() == {
         'registerUser': {
             'ok': False,
+            'codeError': 102,
             'message': 'The data for the field "mobile_phone" already exists.',
             'user': None,
         },
@@ -104,6 +107,7 @@ async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
     assert response.json() == {
         'registerUser': {
             'ok': False,
+            'codeError': 100,
             'message': 'The field "name" cannot be empty or contain only spaces.',
             'user': None,
         },

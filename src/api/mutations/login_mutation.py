@@ -4,6 +4,7 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
+from src.enum.enum import ErrorResponseCodeEnum
 from src.utils.utils import is_field_null_or_empty
 
 
@@ -14,6 +15,7 @@ class Login(graphene.Mutation):
         email = graphene.String(required=False)
 
     ok = graphene.Boolean()
+    code_error = graphene.Int()
     message = graphene.String()
     user = graphene.Field(UserScheme)
 
@@ -35,6 +37,7 @@ class Login(graphene.Mutation):
         ):
             return cls(
                 ok=False,
+                code_error=ErrorResponseCodeEnum.EMPTY_OR_NULL_FIELD.value,
                 message='Required fields cannot be null or empty.',
                 user=None,
             )
@@ -49,12 +52,14 @@ class Login(graphene.Mutation):
         if not existing_user:
             return cls(
                 ok=False,
+                code_error=ErrorResponseCodeEnum.INVALID_CREDENTIALS.value,
                 message='The credentials entered are invalid.',
                 user=None,
             )
 
         return cls(
             ok=True,
+            code_error=None,
             message='User login was successful.',
             user=UserScheme(id=existing_user.id),
         )

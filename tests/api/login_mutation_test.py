@@ -17,6 +17,7 @@ mutation_login = '''
            password: $password,
        ) {
            ok
+           codeError
            message
            user {
                id
@@ -49,6 +50,7 @@ async def test_successful_login_with_valid_data(
     assert response_json == {
         'login': {
             'ok': True,
+            'codeError': None,
             'message': 'User login was successful.',
             'user': {
                 'id': str(existing_user.id),
@@ -95,6 +97,7 @@ async def test_error_when_credentials_are_invalid(
     assert response.json() == {
         'login': {
             'ok': False,
+            'codeError': 101,
             'message': 'The credentials entered are invalid.',
             'user': None,
         },
@@ -117,6 +120,7 @@ async def test_error_when_credentials_are_sent_empty_or_null(mock_prepare_db, cl
     assert response.json() == {
         'login': {
             'ok': False,
+            'codeError': 100,
             'message': 'Required fields cannot be null or empty.',
             'user': None,
         },

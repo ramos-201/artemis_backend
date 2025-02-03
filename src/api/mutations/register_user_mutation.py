@@ -2,6 +2,7 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
+from src.enum.enum import ErrorResponseCodeEnum
 from src.exceptions.exceptions import DuplicateFieldError
 from src.exceptions.exceptions import EmptyFieldError
 from src.utils.utils import validate_if_fields_are_not_empty_or_null
@@ -17,6 +18,7 @@ class RegisterUser(graphene.Mutation):
         password = graphene.String(required=True)
 
     ok = graphene.Boolean()
+    code_error = graphene.Int()
     message = graphene.String()
     user = graphene.Field(UserScheme)
 
@@ -44,6 +46,7 @@ class RegisterUser(graphene.Mutation):
         except EmptyFieldError as e:
             return cls(
                 ok=False,
+                code_error=ErrorResponseCodeEnum.EMPTY_OR_NULL_FIELD.value,
                 message=str(e),
                 user=None,
             )
@@ -61,12 +64,14 @@ class RegisterUser(graphene.Mutation):
         except DuplicateFieldError as e:
             return cls(
                 ok=False,
+                code_error=ErrorResponseCodeEnum.DUPLICATE_DATA.value,
                 message=str(e),
                 user=None,
             )
 
         return cls(
             ok=True,
+            code_error=None,
             message='User registered successfully.',
             user=UserScheme(id=user_created.id),
         )
