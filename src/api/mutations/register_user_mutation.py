@@ -4,7 +4,7 @@ from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
 from src.exceptions.exceptions import DuplicateFieldError
 from src.exceptions.exceptions import EmptyFieldError
-from src.utils import validate_if_fields_are_not_empty_or_null
+from src.utils.utils import validate_if_fields_are_not_empty_or_null
 
 
 class RegisterUser(graphene.Mutation):

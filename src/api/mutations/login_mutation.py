@@ -4,7 +4,7 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
-from src.utils import is_field_null_or_empty
+from src.utils.utils import is_field_null_or_empty
 
 
 class Login(graphene.Mutation):

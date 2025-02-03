@@ -6,13 +6,12 @@ from tortoise import Tortoise
 
 from src.api.mutation_base import Mutation
 from src.api.queries_base import Query
-from src.setting.env.base import HOST_DATABASE_ARTEMIS
-from src.setting.env.base import NAME_DATABASE_ARTEMIS
-from src.setting.env.base import PASSWORD_DATABASE_ARTEMIS
-from src.setting.env.base import PORT_DATABASE_ARTEMIS
-from src.setting.env.base import USER_DATABASE_ARTEMIS
-from src.utils import PATH_API
-
+from src.env.base import HOST_DATABASE_ARTEMIS
+from src.env.base import NAME_DATABASE_ARTEMIS
+from src.env.base import PASSWORD_DATABASE_ARTEMIS
+from src.env.base import PORT_DATABASE_ARTEMIS
+from src.env.base import USER_DATABASE_ARTEMIS
+from src.utils.utils import API_PATH_NAME
 
 schema = Schema(query=Query, mutation=Mutation)
 
@@ -45,6 +44,6 @@ async def close_db():
 app = Starlette(
     debug=True,
     on_startup=[initialize_db],
-    routes=[Route(PATH_API, handler_graphql_request, methods=['POST'])],
+    routes=[Route(API_PATH_NAME, handler_graphql_request, methods=['POST'])],
     on_shutdown=[close_db],
 )

@@ -50,7 +50,7 @@ repos:
           language: system
           pass_filenames: false
           always_run: true
-          stages: [ pre-commit ]
+          stages: [pre-commit]
           files: '\.py$'
   - repo: local
     hooks:

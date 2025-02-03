@@ -1,8 +1,7 @@
 from pytest import mark
 
 from src.models import User
-from src.utils import PATH_API
-
+from src.utils.utils import API_PATH_NAME
 
 mutation_register_user = '''
     mutation(
@@ -41,7 +40,7 @@ async def test_successful_user_registration_with_valid_data(mock_prepare_db, cli
         'mobilePhone': '3111111111',
         'password': 'password_example',
     }
-    response = client_api.post(PATH_API, json={'query': mutation_register_user, 'variables': mutation_variables})
+    response = client_api.post(API_PATH_NAME, json={'query': mutation_register_user, 'variables': mutation_variables})
     response_json = response.json()
 
     assert response_json == {
@@ -79,7 +78,8 @@ async def test_error_when_user_already_exists_in_user_registration(
         'mobilePhone': existing_user.mobile_phone,
         'password': existing_user.password,
     }
-    response = client_api.post(PATH_API, json={'query': mutation_register_user, 'variables': mutation_variables})
+    response = client_api.post(API_PATH_NAME, json={'query': mutation_register_user, 'variables': mutation_variables})
+
     assert response.json() == {
         'registerUser': {
             'ok': False,
@@ -99,7 +99,8 @@ async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
         'mobilePhone': '',
         'password': '',
     }
-    response = client_api.post(PATH_API, json={'query': mutation_register_user, 'variables': mutation_variables})
+    response = client_api.post(API_PATH_NAME, json={'query': mutation_register_user, 'variables': mutation_variables})
+
     assert response.json() == {
         'registerUser': {
             'ok': False,
@@ -117,5 +118,5 @@ async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
     ],
 )
 async def test_error_when_required_variables_are_sent_null(mock_prepare_db, client_api, mutation_variables):
-    response = client_api.post(PATH_API, json={'query': mutation_register_user, 'variables': mutation_variables})
+    response = client_api.post(API_PATH_NAME, json={'query': mutation_register_user, 'variables': mutation_variables})
     assert response.json() == {'error': 'There was a problem with the fields provided. Please check the inputs.'}

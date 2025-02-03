@@ -1,7 +1,7 @@
 from src.exceptions.exceptions import EmptyFieldError
 
 
-PATH_API = '/graphql'
+API_PATH_NAME = '/graphql'
 
 
 def is_field_null_or_empty(field) -> bool:
