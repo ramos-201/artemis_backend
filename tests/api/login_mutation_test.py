@@ -1,7 +1,7 @@
 from pytest import mark
 
+from src.env.base import API_PATH_NAME
 from src.models import User
-from src.utils.utils import API_PATH_NAME
 from tests.factory_test import UserFactory
 
 
@@ -34,7 +34,7 @@ mutation_login = '''
         ['email', 'email'],
     ],
 )
-async def test_successful_login_with_valid_data(
+async def test_login_user_success(
         mock_prepare_db, client_api, default_user_record_constructor,
         identifier_field, identifier_value,
 ):
@@ -48,33 +48,29 @@ async def test_successful_login_with_valid_data(
     response_json = response.json()
 
     assert response_json == {
-        'login': {
-            'ok': True,
-            'codeError': None,
-            'message': 'User login was successful.',
-            'user': {
-                'id': str(existing_user.id),
+        'data': {
+            'login': {
+                'ok': True,
+                'codeError': None,
+                'message': 'User login was successful.',
+                'user': {'id': str(existing_user.id)},
             },
         },
     }
 
-    user_data = await User.get(id=response_json['login']['user']['id'])
+    user_data = await User.get(id=response_json['data']['login']['user']['id'])
     assert getattr(user_data, identifier_value) == mutation_variables[identifier_field]
-
-
-valid_password = 'password_valid'
-credentials_valid = 'credentials_valid@example.com'
 
 
 @mark.asyncio
 @mark.parametrize(
     'credentials_field_identifier, credentials_value, password_value', [
-        ['username', 'username_invalid', valid_password],
-        ['email', 'email_invalid', valid_password],
-        ['username', credentials_valid, 'password_invalid'],
-        ['email', credentials_valid, 'password_invalid'],
-        ['username', 'credential_invalid', 'password_invalid'],
-        ['email', 'credential_invalid', 'password_invalid'],
+        ['username', 'username_invalid', 'password_valid'],
+        ['email', 'email_invalid@example.com', 'password_valid'],
+        ['username', 'username_valid', 'password_invalid'],
+        ['email', 'email_valid@example.com', 'password_invalid'],
+        ['username', 'username_invalid', 'password_invalid'],
+        ['email', 'email_invalid@example.com', 'password_invalid'],
     ],
 )
 async def test_error_when_credentials_are_invalid(
@@ -82,9 +78,9 @@ async def test_error_when_credentials_are_invalid(
         credentials_field_identifier, credentials_value, password_value,
 ):
     existing_user = await UserFactory.build(
-        password=valid_password,
-        username=credentials_valid,
-        email=credentials_valid,
+        password='password_valid',
+        username='username_valid',
+        email='email_valid@example.com',
     )
     await existing_user.save()
 
@@ -95,11 +91,13 @@ async def test_error_when_credentials_are_invalid(
     response = client_api.post(API_PATH_NAME, json={'query': mutation_login, 'variables': mutation_variables})
 
     assert response.json() == {
-        'login': {
-            'ok': False,
-            'codeError': 101,
-            'message': 'The credentials entered are invalid.',
-            'user': None,
+        'data': {
+            'login': {
+                'ok': False,
+                'codeError': 101,
+                'message': 'The credentials entered are invalid.',
+                'user': None,
+            },
         },
     }
 
@@ -115,14 +113,16 @@ async def test_error_when_credentials_are_invalid(
         {'email': None, 'password': 'pass_example'},
     ],
 )
-async def test_error_when_credentials_are_sent_empty_or_null(mock_prepare_db, client_api, mutation_variables):
+async def test_error_when_credentials_are_empty_or_null(mock_prepare_db, client_api, mutation_variables):
     response = client_api.post(API_PATH_NAME, json={'query': mutation_login, 'variables': mutation_variables})
     assert response.json() == {
-        'login': {
-            'ok': False,
-            'codeError': 100,
-            'message': 'Required fields cannot be null or empty.',
-            'user': None,
+        'data': {
+            'login': {
+                'ok': False,
+                'codeError': 100,
+                'message': 'Required fields cannot be null or empty.',
+                'user': None,
+            },
         },
     }
 

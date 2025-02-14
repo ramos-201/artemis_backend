@@ -1,7 +1,8 @@
 from pytest import mark
 
+from src.env.base import API_PATH_NAME
 from src.models import User
-from src.utils.utils import API_PATH_NAME
+
 
 mutation_register_user = '''
     mutation(
@@ -32,7 +33,7 @@ mutation_register_user = '''
 
 
 @mark.asyncio
-async def test_successful_user_registration_with_valid_data(mock_prepare_db, client_api):
+async def test_register_user_success(mock_prepare_db, client_api):
     mutation_variables = {
         'name': 'John',
         'lastName': 'Smith',
@@ -45,17 +46,17 @@ async def test_successful_user_registration_with_valid_data(mock_prepare_db, cli
     response_json = response.json()
 
     assert response_json == {
-        'registerUser': {
-            'ok': True,
-            'codeError': None,
-            'message': 'User registered successfully.',
-            'user': {
-                'id': '1',
+        'data': {
+            'registerUser': {
+                'ok': True,
+                'codeError': None,
+                'message': 'User registered successfully.',
+                'user': {'id': '1'},
             },
         },
     }
 
-    user_created = await User.get(id=response_json['registerUser']['user']['id'])
+    user_created = await User.get(id=response_json['data']['registerUser']['user']['id'])
     assert user_created.name == mutation_variables['name']
     assert user_created.last_name == mutation_variables['lastName']
     assert user_created.username == mutation_variables['username']
@@ -67,9 +68,7 @@ async def test_successful_user_registration_with_valid_data(mock_prepare_db, cli
 
 
 @mark.asyncio
-async def test_error_when_user_already_exists_in_user_registration(
-        mock_prepare_db, client_api, default_user_record_constructor,
-):
+async def test_error_when_user_already_exists(mock_prepare_db, client_api, default_user_record_constructor):
     existing_user = await default_user_record_constructor
 
     mutation_variables = {
@@ -83,11 +82,13 @@ async def test_error_when_user_already_exists_in_user_registration(
     response = client_api.post(API_PATH_NAME, json={'query': mutation_register_user, 'variables': mutation_variables})
 
     assert response.json() == {
-        'registerUser': {
-            'ok': False,
-            'codeError': 102,
-            'message': 'The data for the field "mobile_phone" already exists.',
-            'user': None,
+        'data': {
+            'registerUser': {
+                'ok': False,
+                'codeError': 102,
+                'message': 'The data for the field "mobile_phone" already exists.',
+                'user': None,
+            },
         },
     }
 
@@ -105,11 +106,13 @@ async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
     response = client_api.post(API_PATH_NAME, json={'query': mutation_register_user, 'variables': mutation_variables})
 
     assert response.json() == {
-        'registerUser': {
-            'ok': False,
-            'codeError': 100,
-            'message': 'The field "name" cannot be empty or contain only spaces.',
-            'user': None,
+        'data': {
+            'registerUser': {
+                'ok': False,
+                'codeError': 100,
+                'message': 'The field "name" cannot be empty or contain only spaces.',
+                'user': None,
+            },
         },
     }
 
@@ -117,7 +120,14 @@ async def test_error_when_fields_are_empty_strings(mock_prepare_db, client_api):
 @mark.asyncio
 @mark.parametrize(
     'mutation_variables', [
-        {'password': None},
+        {
+            'name': None,
+            'lastName': None,
+            'username': None,
+            'email': None,
+            'mobilePhone': None,
+            'password': None,
+        },
         None,
     ],
 )

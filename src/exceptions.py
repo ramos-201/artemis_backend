@@ -1,4 +1,4 @@
-class EmptyFieldError(Exception):
+class EmptyOrNullFieldError(Exception):
     pass
 
 

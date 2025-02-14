@@ -2,10 +2,10 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
-from src.enum.enum import ErrorResponseCodeEnum
-from src.exceptions.exceptions import DuplicateFieldError
-from src.exceptions.exceptions import EmptyFieldError
-from src.utils.utils import validate_if_fields_are_not_empty_or_null
+from src.enum import ErrorResponseCodeEnum
+from src.exceptions import DuplicateFieldError
+from src.exceptions import EmptyOrNullFieldError
+from src.utils import validate_if_fields_are_not_empty_or_null
 
 
 class RegisterUser(graphene.Mutation):
@@ -43,11 +43,11 @@ class RegisterUser(graphene.Mutation):
                 mobile_phone=mobile_phone,
                 password=password,
             )
-        except EmptyFieldError as e:
+        except EmptyOrNullFieldError as error:
             return cls(
                 ok=False,
                 code_error=ErrorResponseCodeEnum.EMPTY_OR_NULL_FIELD.value,
-                message=str(e),
+                message=str(error),
                 user=None,
             )
 
@@ -61,11 +61,11 @@ class RegisterUser(graphene.Mutation):
                 mobile_phone=mobile_phone,
                 password=password,
             )
-        except DuplicateFieldError as e:
+        except DuplicateFieldError as error:
             return cls(
                 ok=False,
                 code_error=ErrorResponseCodeEnum.DUPLICATE_DATA.value,
-                message=str(e),
+                message=str(error),
                 user=None,
             )
 

@@ -1,7 +1,4 @@
-from src.exceptions.exceptions import EmptyFieldError
-
-
-API_PATH_NAME = '/graphql'
+from src.exceptions import EmptyOrNullFieldError
 
 
 def is_field_null_or_empty(field) -> bool:
@@ -11,4 +8,4 @@ def is_field_null_or_empty(field) -> bool:
 def validate_if_fields_are_not_empty_or_null(**fields) -> None:
     for key, value in fields.items():
         if is_field_null_or_empty(value):
-            raise EmptyFieldError(f'The field "{key}" cannot be empty or contain only spaces.')
+            raise EmptyOrNullFieldError(f'The field "{key}" cannot be empty or contain only spaces.')

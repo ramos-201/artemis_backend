@@ -4,8 +4,8 @@ import graphene
 
 from src.api.schemas.user_scheme import UserScheme
 from src.controllers.user_controller import UserController
-from src.enum.enum import ErrorResponseCodeEnum
-from src.utils.utils import is_field_null_or_empty
+from src.enum import ErrorResponseCodeEnum
+from src.utils import is_field_null_or_empty
 
 
 class Login(graphene.Mutation):
@@ -29,11 +29,8 @@ class Login(graphene.Mutation):
             email: Optional[str] = None,
     ):
         if (
-            is_field_null_or_empty(password) or
-            (
-                is_field_null_or_empty(email) and
-                is_field_null_or_empty(username)
-            )
+                is_field_null_or_empty(password) or
+                all(is_field_null_or_empty(field) for field in [username, email])
         ):
             return cls(
                 ok=False,
